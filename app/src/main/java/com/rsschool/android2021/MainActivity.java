@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FirstFragment.OnFragmentSendDataListener, SecondFragment.OnFragmentBackDataListener{
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -19,11 +19,37 @@ public class MainActivity extends AppCompatActivity {
     private void openFirstFragment(int previousNumber) {
         final Fragment firstFragment = FirstFragment.newInstance(previousNumber);
         final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.container, firstFragment);
-        // TODO: invoke function which apply changes of the transaction
+        transaction.replace(R.id.container, firstFragment, "TAG_FIRST")
+                .commit();
     }
 
     private void openSecondFragment(int min, int max) {
-        // TODO: implement it
+        final Fragment secondFragment = SecondFragment.newInstance(min, max);
+        final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.container, secondFragment, "TAG_SECOND")
+                .commit();
+    }
+
+    @Override
+    public void onSendData(int min, int max) {
+        openSecondFragment(min, max);
+    }
+
+    @Override
+    public void onBackData(int random) {
+        openFirstFragment(random);
+    }
+
+    @Override
+    public void onBackPressed() {
+        SecondFragment secondFragment = (SecondFragment) getSupportFragmentManager().findFragmentByTag("TAG_SECOND");
+        if(secondFragment != null)
+        {
+            secondFragment.getFragmentBackDataListener().onBackData(secondFragment.getRandomValue());
+        }
+        else
+        {
+            finish();
+        }
     }
 }
